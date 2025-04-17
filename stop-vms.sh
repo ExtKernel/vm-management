@@ -1,3 +1,10 @@
+function handle_unmount_error {
+        while [ $? != 0 ]; do
+                sleep 5s
+                $SSD_UNMOUNT_COMMAND
+        done
+}
+
 function unmount_drives {
         # change according to your setup
         # or don't call at all, if not needed
@@ -8,15 +15,10 @@ function unmount_drives {
 
 	echo "Unmounting necessary for VMs drives"
 	$SSD_UNMOUNT_COMMAND	
-	while [ $? != 0 ]; do
-		sleep 5s
-		$SSD_UNMOUNT_COMMAND
-	done
+	handle_unmount_error
+
 	$HDD_UNMOUNT_COMMAND
-	if [[ $? != 0 ]]; then
-		sleep 30s
-                $HDD_UNMOUNT_COMMAND
-        fi
+	handle_unmount_error
 
 }
 
