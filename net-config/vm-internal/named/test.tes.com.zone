@@ -1,0 +1,34 @@
+$TTL 86400
+@	IN	SOA	dns01.test.tes.com.	root.test.tes.com. (
+                2023010401  ;Serial
+                3600        ;Refresh
+                1800        ;Retry
+                604800      ;Expire
+                86400       ;Minimum TTL
+)
+
+; Basic net infra
+; 10.1.1.x
+@		IN	NS      dns01.test.test.com.
+@		IN	A       10.1.1.3
+dns01		IN	A       10.1.1.3
+dhcp01		IN	A	10.1.1.2
+
+; Provisioning
+; 10.1.2.x
+ansible01	IN	A	10.1.2.10
+maas01		IN	A	10.1.2.11
+
+; IDP
+; 10.1.3.x
+keycloak01	IN	A	10.1.3.10
+freeipa01	IN	A	10.1.3.11
+
+; Software
+; 10.1.4.x
+sync01		IN	A	10.1.4.10
+db01		IN	A	10.1.4.20
+
+; Purely test VMs
+; 10.1.5.x
+win11-client01	IN	A	10.1.5.10	

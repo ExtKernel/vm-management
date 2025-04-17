@@ -1,10 +1,23 @@
 function unmount_drives {
+        # change according to your setup
+        # or don't call at all, if not needed
 	SSD_TO_UNMOUNT="/dev/sdb1"
 	HDD_TO_UNMOUNT="/dev/sda1"
+	SSD_UNMOUNT_COMMAND="sudo udisksctl unmount -b "$SSD_TO_UNMOUNT""
+	HDD_UNMOUNT_COMMAND="sudo udisksctl unmount -b "$HDD_TO_UNMOUNT""
 
 	echo "Unmounting necessary for VMs drives"
-	sudo udisksctl unmount -b $SSD_TO_UNMOUNT
-	sudo udisksctl unmount -b $HDD_TO_UNMOUNT
+	$SSD_UNMOUNT_COMMAND	
+	while [ $? != 0 ]; do
+		sleep 5s
+		$SSD_UNMOUNT_COMMAND
+	done
+	$HDD_UNMOUNT_COMMAND
+	if [[ $? != 0 ]]; then
+		sleep 30s
+                $HDD_UNMOUNT_COMMAND
+        fi
+
 }
 
 function stop_vms {
@@ -19,7 +32,5 @@ function stop_vms {
 }
 
 stop_vms
-
-sleep 20
 unmount_drives
 
