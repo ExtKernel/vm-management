@@ -3,6 +3,17 @@ RHEL_UPDATE_COMMAND="sudo dnf update -y && sudo dnf upgrade -y"
 UBUNTU_UPDATE_COMMAND="sudo apt-get update -y && sudo apt-get upgrade -y"
 BOLD_GREEN="\033[1;32m"
 NC="\033[0m"
+MODE=$1
+
+if [[ -n $MODE ]]; then
+	if [[ "$MODE" == "reboot" ]]; then
+		RHEL_UPDATE_COMMAND="$RHEL_UPDATE_COMMAND; sudo reboot"
+		UBUNTU_UPDATE_COMMAND="$UBUNTU_UPDATE_COMMAND; sudo reboot"
+	else
+		echo -e "Currently the following update modes are available: \"reboot\""
+		exit 1
+	fi
+fi
 
 # Update Basic net infra VMs
 echo -e "$BOLD_GREEN Updating DHCP VM server\n $NC"

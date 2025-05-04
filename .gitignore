@@ -1,1 +1,2 @@
-test-vm-ip-addresses.txt
+*.txt
+*.env

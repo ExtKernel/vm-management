@@ -1,5 +1,5 @@
 <network connections='1'>
-  <name>default-net-no-dhcp</name>
+  <name>no-dhcp-multi-subnet-net</name>
   <uuid>5e909851-2a19-4d92-bf33-6d0c63d197da</uuid>
   <forward mode='nat'>
     <nat>
@@ -21,5 +21,7 @@
   </ip>
 
   <ip address='10.1.5.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='10.1.6.1' netmask='255.255.255.0'>
   </ip>
 </network>
