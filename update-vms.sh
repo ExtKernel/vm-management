@@ -1,8 +1,9 @@
 #!/bin/bash
 RHEL_UPDATE_COMMAND="sudo dnf update -y && sudo dnf upgrade -y"
 DEBIAN_UPDATE_COMMAND="sudo apt-get update -y && sudo apt-get upgrade -y"
-BOLD_GREEN="\033[1;32m"
-NC="\033[0m"
+GREEN="\033[1;32m"
+RED="\033[0;31m"
+RESET="\033[0m"
 USER=$1
 MACHINES=$2
 MODE=$3
@@ -31,18 +32,21 @@ function check_args() {
 function update() {
 	while IFS=";" read address os; do
 		ssh_command="ssh $USER@$address"
-		echo $ssh_command
 
 		case $os in
 			"RHEL")
-			        echo -e "${BOLD_GREEN}Updating RHEL VM with address $address${NC}\n\n\n"
-			        $ssh_command "$RHEL_UPDATE_COMMAND" < /dev/null
-			        echo -e "\n\n\n"
+				{
+					$ssh_command "$RHEL_UPDATE_COMMAND" < /dev/null && echo -e "${GREEN}Updated RHEL VM with address $address${RESET}\n\n\n"
+				} || {
+				       	echo -e "${address}: ${RED}OFFLINE${RESET}\n\n\n"
+				}
 				;;
 			"DEBIAN")
-			        echo -e "${BOLD_GREEN}Updating Debian VM with address $address${NC}\n\n\n"
-			        $ssh_command "$DEBIAN_UPDATE_COMMAND" < /dev/null
-			        echo -e "\n\n\n"
+                                {
+                                        $ssh_command "$DEBIAN_UPDATE_COMMAND" < /dev/null && echo -e "${GREEN}Updated DEBIAN VM with address $address${RESET}\n\n\n"
+                                } || { 
+                                        echo -e "${address}: ${RED}OFFLINE${RESET}\n\n\n"
+                                }
 				;;
 		esac
 	done < "$MACHINES"
