@@ -1,49 +1,53 @@
 #!/bin/bash
 RHEL_UPDATE_COMMAND="sudo dnf update -y && sudo dnf upgrade -y"
-UBUNTU_UPDATE_COMMAND="sudo apt-get update -y && sudo apt-get upgrade -y"
+DEBIAN_UPDATE_COMMAND="sudo apt-get update -y && sudo apt-get upgrade -y"
 BOLD_GREEN="\033[1;32m"
 NC="\033[0m"
-MODE=$1
+USER=$1
+MACHINES=$2
+MODE=$3
 
-if [[ -n $MODE ]]; then
-	if [[ "$MODE" == "reboot" ]]; then
-		RHEL_UPDATE_COMMAND="$RHEL_UPDATE_COMMAND; sudo reboot"
-		UBUNTU_UPDATE_COMMAND="$UBUNTU_UPDATE_COMMAND; sudo reboot"
-	else
-		echo -e "Currently the following update modes are available: \"reboot\""
+function help() {
+	echo -e "Usage: ./update-vms.sh <ssh-user> <machines-file> <mode>\nWhere <ssh-user> is the user that will be used for ssh command\n<machines-file> is a file that contains IPs or FQDNs of the VMs. Each on a newline\n<mode> accepts only \"reboot\" at the moment. Specifying it will make the VMs reboot after update"
+}
+
+function check_args() {
+	if [[ -z $USER ]] || [[ -z $MACHINES ]]; then
+		help
 		exit 1
 	fi
-fi
 
-# Update Basic net infra VMs
-echo -e "$BOLD_GREEN Updating DHCP VM server\n $NC"
-ssh root@10.1.1.2 "$UBUNTU_UPDATE_COMMAND" &
+	if [[ -n $MODE ]]; then
+        	if [[ "$MODE" == "reboot" ]]; then
+                	RHEL_UPDATE_COMMAND="$RHEL_UPDATE_COMMAND; sudo reboot"
+                	UBUNTU_UPDATE_COMMAND="$UBUNTU_UPDATE_COMMAND; sudo reboot"
+        	else
+                	help
+                	exit 1
+        	fi
+	fi
+}
 
-echo -e "$BOLD_GREEN Updating DNS VM server\n $NC" &
-ssh root@10.1.1.3 "$RHEL_UPDATE_COMMAND"
+function update() {
+	while IFS=";" read address os; do
+		ssh_command="ssh $USER@$address"
+		echo $ssh_command
 
-# Update Provisioning VMs
-echo -e "$BOLD_GREEN Updating Ansible VM server\n $NC" &
-ssh root@10.1.2.10 "$RHEL_UPDATE_COMMAND"
+		case $os in
+			"RHEL")
+			        echo -e "${BOLD_GREEN}Updating RHEL VM with address $address${NC}\n\n\n"
+			        $ssh_command "$RHEL_UPDATE_COMMAND" < /dev/null
+			        echo -e "\n\n\n"
+				;;
+			"DEBIAN")
+			        echo -e "${BOLD_GREEN}Updating Debian VM with address $address${NC}\n\n\n"
+			        $ssh_command "$DEBIAN_UPDATE_COMMAND" < /dev/null
+			        echo -e "\n\n\n"
+				;;
+		esac
+	done < "$MACHINES"
+}
 
-echo -e "$BOLD_GREEN Updating MAAS VM server\n $NC" &
-ssh root@10.1.2.11 "$UBUNTU_UPDATE_COMMAND"
+check_args
+update
 
-# Update IDP VMs
-echo -e "$BOLD_GREEN Updating Keycloak VM server\n $NC" &
-ssh root@10.1.3.10 "$RHEL_UPDATE_COMMAND"
-
-echo -e "$BOLD_GREEN Updating FreeIPA VM server\n $NC" &
-ssh root@10.1.3.11 "$RHEL_UPDATE_COMMAND"
-
-# Update Software VMs
-echo -e "$BOLD_GREEN Updating IDP Sync VM server\n $NC" &
-ssh root@10.1.4.10 "$RHEL_UPDATE_COMMAND"
-
-echo -e "$BOLD_GREEN Updating DBs VM server\n $NC" &
-ssh root@10.1.4.20 "$RHEL_UPDATE_COMMAND"
-
-# Update Purely test VMs
-# --- Can not update Windows 11 from here
-
-wait

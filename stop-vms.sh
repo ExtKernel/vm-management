@@ -1,5 +1,7 @@
 function handle_unmount_error {
-        while [ $? != 0 ]; do
+        local increment=0
+
+	while [ $? != 0 ]; do
 		increment=$(($increment + 1))
 		if [[ $increment > 3 ]]; then
 			stop_vms "destroy"
@@ -11,21 +13,29 @@ function handle_unmount_error {
         done
 }
 
+function unmount_drive {
+	DRIVE_LABEL=$1
+	DRIVE_MOUNT_DIR=$2
+
+	echo -e "Unmounting $DRIVE_LABEL from $DRIVE_MOUNT_DIR"
+	sudo umount "$DRIVE_MOUNT_DIR"
+	handle_unmount_error
+}
+
 function unmount_drives {
         # change according to your setup
         # or don't call at all, if not needed
-        SSD_LABEL="ssd-storage0"
+ 	# SSD
+ 	SSD_LABEL="ssd-storage0"
 	SSD_MOUNT_DIR="/mnt/$SSD_LABEL"
-#       HDD_LABEL="lgt-storage0"
-#       HDD_MOUNT_DIR="/mnt/$HDD_LABEL"
-
-        echo -e "Unmounting all VM drives..."
-	echo -e "Unmounting $SSD_LABEL from $SSD_MOUNT_DIR"
-        sudo umount "$SSD_MOUNT_DIR"
-	handle_unmount_error
-#        echo -e "Unmounting $SSD_LABEL from $HDD_MOUNT_DIR"  
-#        sudo umount "$HDD_MOUNT_DIR"   
-	handle_unmount_error
+	
+	unmount_drive $SSD_LABEL $SSD_MOUNT_DIR
+	
+	# HDD
+	HDD_LABEL="lgt-storage0"
+        HDD_MOUNT_DIR="/mnt/$HDD_LABEL"
+	
+	unmount_drive $HDD_LABEL $HDD_MOUNT_DIR
 }
 
 
