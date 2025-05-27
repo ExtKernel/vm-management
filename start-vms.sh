@@ -1,4 +1,5 @@
 START_OPTION=$1
+DRIVES=$2
 
 function help {
 	echo -e "Please, specify a positional argument. Acceptable values: \"ALL\", \"NET\" or name of the file that contains names of the VMs to be started row by row"
@@ -20,16 +21,10 @@ function mount_drive {
 }
 
 function mount_drives {
-	# change according to your setup
-	# or don't call at all, if not needed
-	SSD_TO_MOUNT="/dev/sdb1"
-	SSD_LABEL="ssd-storage0"
-	HDD_TO_MOUNT="/dev/sda1"
-	HDD_LABEL="lgt-storage0"
+	while IFS=";" read mount_dir mount_label; do
+		mount_drive "$mount_dir" "$mount_label"
 
-	echo "Mounting all necessary drives..."
-	mount_drive "$SSD_TO_MOUNT" "$SSD_LABEL"
-	mount_drive $HDD_TO_MOUNT $HDD_LABEL	
+	done < "$DRIVES"	
 }
 
 function start_vms {
