@@ -2,7 +2,19 @@ START_OPTION=$1
 DRIVES=$2
 
 function help {
-	echo -e "Please, specify a positional argument. Acceptable values: \"ALL\", \"NET\" or name of the file that contains names of the VMs to be started row by row"
+	echo -e "Please, specify positional arguments.\nUsage: ./start-vms.sh <mode> <drives> 
+
+	mode: \"ALL\" - will start all of the VMs that virsh can see
+       	      \"NET\" - will start VMs that are named \"dhcp01\" and \"dns01\"
+	      </path/to/the/machines/file.cfg> - path to the machines file. The machines file should look like this:
+			name-of-the-vm
+			another-name-of-the-another-vm
+			...
+	drives (optional): if there're drives to be mounted in order to start the VMs, please specify name(path) of the file that contains:
+			<drive>;<mount-directory>
+			<another-drive>;<another-mount-directory>
+			...
+	"
 }
 
 if [[ -z "$START_OPTION" ]]; then

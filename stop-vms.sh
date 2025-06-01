@@ -7,8 +7,8 @@ function handle_unmount_error {
                         stop_vms "destroy"
                         break
                 fi
-                echo -e "Retry in 5 seconds\n"
-                sleep 5s
+                echo -e "Retry in 15 seconds\n"
+                sleep 15s
                 $SSD_UNMOUNT_COMMAND
                 exit_code=$?
         done

@@ -1,12 +1,13 @@
 #!/bin/bash
-START_OPTION="$2"
+START_OPTION=$2
+DRIVES=$3
 START_STOP_SCRIPT_LOCATION="/home/exkernel/code/test-vm-management"
 START_SCRIPT="$START_STOP_SCRIPT_LOCATION/start-vms.sh"
 STOP_SCRIPT="$START_STOP_SCRIPT_LOCATION/stop-vms.sh"
 
 case $1 in
 	"start")
-		$START_SCRIPT $START_OPTION
+		$START_SCRIPT "$START_OPTION" "$DRIVES"
 		;;
 	"stop")
 		$STOP_SCRIPT
